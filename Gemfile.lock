@@ -1,8 +1,11 @@
 PATH
   remote: .
   specs:
-    repia (0.0.1)
+    repia (0.0.2)
+      coveralls
       rails (~> 4.2.6)
+      simplecov
+      uuidtools (~> 2.1.5)
 
 GEM
   remote: https://rubygems.org/
