@@ -56,4 +56,5 @@ Rails.application.routes.draw do
   
   resources :dummies
   match 'dummies(/:id)' => 'dummies#options', via: [:options]
+  get '*unmatched_route', to: 'application#not_found'
 end

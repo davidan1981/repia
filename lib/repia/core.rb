@@ -1,3 +1,4 @@
+require 'json'
 require 'repia/errors'
 
 module Repia
@@ -42,11 +43,23 @@ module Repia
       render_error 500, "Unknown error occurred: #{exception.message}"
     end
 
+    # Catch all manually thrown HTTP errors (predefined by repia)
     rescue_from Errors::HTTPError do |exception|
       status_code = exception.class.const_get("STATUS_CODE")
-      message = exception.message || exception.class.name
+      message = exception.message || exception.class::MESSAGE
       logger.error "#{status_code} - #{message}"
       render_error status_code, message
+    end
+
+    ##
+    # Use this as an action triggered by exceptions_app to return a JSON
+    # response to any middleware level exceptions
+    #
+    def exceptions_app
+      status = ActionDispatch::ExceptionWrapper.new(env, @exception).status_code.to_i
+      error = Errors::STATUS_CODE_TO_ERROR[status]
+      message = error ? error::MESSAGE : "Unknown error"
+      render_error status, message
     end
 
     ##
@@ -54,7 +67,7 @@ module Repia
     # override this action if desired to have specific OPTIONS handling
     # logic.
     #
-    def options()
+    def options
       # echo back access-control-request-headers
       if request.headers["Access-Control-Request-Headers"]
         response["Access-Control-Allow-Headers"] =

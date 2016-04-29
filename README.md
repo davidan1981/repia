@@ -20,7 +20,7 @@ Edit `application_controller.rb` as the following:
     end
 
 This will allow all controllers in the project to inherit from
-`Repia::BaseController`, which gracefully handles all errors using
+`Repia::BaseController`, which gracefully handles all _code_ errors using
 pre-defined HTTP errors. 
 
 Next, update all models that need UUID as a primary identifier:
@@ -41,3 +41,31 @@ that migration must look similar to this:
         end
       end
     end
+
+## Middleware
+
+When developing a JSON API, it is annoying to see non-JSON error responses
+from a middleware. There are two prominent cases: `405 Method Not Allowed`
+and `404 Not Found`. The former occurs when the request method is invalid
+and the latter happens when the route does not match any controller or
+action. Since these are caught within middleware, `rescue_from` does not
+really help. So repia provides two useful components for this.
+
+### Method Not Allowed
+
+This class is a middleware that can be inserted (preferrably after
+`ActionDispatch::RequestId`) to catch 405 errors. Instead of using a view
+template, it will return a simple JSON response with a status of 405.
+
+### Routing Error
+
+Routing errors can be caught using `BaseController#exceptions_app`. To
+configure it, add this to `config/application.rb`:
+
+    config.exceptions_app = lambda {|env| ApplicationController.action(:exceptions_app).call(env)}
+
+*NOTE*: To enable this feature in development and in test,
+`config/environments/development.rb` and `config/environments/test.rb` must
+have 
+
+    config.consider_all_requests_local = false
