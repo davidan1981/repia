@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    repia (0.0.2)
+    repia (0.1.0)
       coveralls
       rails (~> 4.2.6)
       simplecov
