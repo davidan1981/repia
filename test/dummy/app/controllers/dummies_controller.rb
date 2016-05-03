@@ -8,6 +8,11 @@ class DummiesController < ApplicationController
     1 + "b"
   end
 
+  def update
+    find_object(UniqueModel, params[:id])
+    render json: "", status: 200
+  end
+
   def show
     status_code = params[:id].to_i
     case status_code
@@ -22,5 +27,10 @@ class DummiesController < ApplicationController
     when 500
       raise Repia::Errors::InternalServerError
     end
+  end
+
+  def destroy
+    @exception = ActionController::RoutingError.new("blah")
+    exceptions_app
   end
 end

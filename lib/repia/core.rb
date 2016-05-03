@@ -28,28 +28,7 @@ module Repia
     end
   end
 
-  ##
-  # This controller is a base controller for RESTful API. Two primary
-  # features: 
-  #
-  # - Error (exception) handling
-  # - Options request handling
-  # 
-  class BaseController < ActionController::Base
-
-    # This is a catch-all.
-    rescue_from StandardError do |exception|
-      logger.error exception.message
-      render_error 500, "Unknown error occurred: #{exception.message}"
-    end
-
-    # Catch all manually thrown HTTP errors (predefined by repia)
-    rescue_from Errors::HTTPError do |exception|
-      status_code = exception.class.const_get("STATUS_CODE")
-      message = exception.message || exception.class::MESSAGE
-      logger.error "#{status_code} - #{message}"
-      render_error status_code, message
-    end
+  module BaseHelper
 
     ##
     # Use this as an action triggered by exceptions_app to return a JSON
@@ -58,7 +37,14 @@ module Repia
     def exceptions_app
       status = ActionDispatch::ExceptionWrapper.new(env, @exception).status_code.to_i
       error = Errors::STATUS_CODE_TO_ERROR[status]
-      message = error ? error::MESSAGE : "Unknown error"
+      if error
+        message = error::MESSAGE
+      else 
+        # :nocov:
+        status = 500
+        message = "Unknown error"
+        # :nocov:
+      end
       render_error status, message
     end
 
@@ -90,5 +76,49 @@ module Repia
       render json: {errors: msgs}, status: status
     end
 
+    ##
+    # Finds an object by model and UUID and throws an error (which will be
+    # caught and re-thrown as an HTTP error) if the object does not exist.
+    # The error can be optionally suppresed by specifying nil to error.
+    #
+    # An Repia::Errors::NotFound is raised if specified to do so when
+    # the object could not be found using the uuid.
+    #
+    def find_object(model, uuid, error: Errors::NotFound)
+      logger.debug("Attempting to get #{model.name} #{uuid}")
+      obj = model.find_by_uuid(uuid)
+      if obj.nil? && !error.nil?
+        raise error, "#{model.name} #{uuid} cannot be found" 
+      end
+      return obj
+    end
+
   end
+
+  ##
+  # This controller is a base controller for RESTful API. Two primary
+  # features: 
+  #
+  # - Error (exception) handling
+  # - Options request handling
+  # 
+  class BaseController < ActionController::Base
+    include BaseHelper
+
+    # This is a catch-all.
+    rescue_from StandardError do |exception|
+      logger.error exception.message
+      render_error 500, "Unknown error occurred: #{exception.message}"
+    end
+
+    # Catch all manually thrown HTTP errors (predefined by repia)
+    rescue_from Errors::HTTPError do |exception|
+      status_code = exception.class.const_get("STATUS_CODE")
+      message = exception.message || exception.class::MESSAGE
+      logger.error "#{status_code} - #{message}"
+      render_error status_code, message
+    end
+
+  end
+
 end
