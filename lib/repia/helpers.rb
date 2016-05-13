@@ -1,41 +1,26 @@
-require 'json'
 require 'repia/errors'
 
 module Repia
 
   ##
-  # This module is a mixin that allows the model to use UUIDs instead of
-  # normal IDs. By including this module, the model class declares that the
-  # primary key is called "uuid" and an UUID is generated right before
-  # save(). You may assign an UUID prior to save, in which case, no new UUID
-  # will be generated.
+  # This helper module includes methods that are essential for building a
+  # RESTful API.
   #
-  module UUIDModel
-
-    ##
-    # Triggered when this module is included.
-    #
-    def self.included(klass)
-      klass.primary_key = "uuid"
-      klass.before_create :generate_uuid
-    end
-
-    ##
-    # Generates an UUID for the model object.
-    #
-    def generate_uuid()
-      self.uuid = UUIDTools::UUID.timestamp_create().to_s if self.uuid.nil?
-    end
-  end
-
   module BaseHelper
 
     ##
     # Use this as an action triggered by exceptions_app to return a JSON
-    # response to any middleware level exceptions
+    # response to any middleware level exceptions.
+    #
+    # For example,
+    #
+    # config.exceptions_app = lambda { |env| 
+    #   ApplicationController.action(:exceptions_app).call(env)
+    # }
     #
     def exceptions_app
-      status = ActionDispatch::ExceptionWrapper.new(env, @exception).status_code.to_i
+      ex_wrapper = ActionDispatch::ExceptionWrapper.new(env, @exception)
+      status = ex_wrapper.status_code.to_i
       error = Errors::STATUS_CODE_TO_ERROR[status]
       if error
         message = error::MESSAGE
@@ -94,31 +79,4 @@ module Repia
     end
 
   end
-
-  ##
-  # This controller is a base controller for RESTful API. Two primary
-  # features: 
-  #
-  # - Error (exception) handling
-  # - Options request handling
-  # 
-  class BaseController < ActionController::Base
-    include BaseHelper
-
-    # This is a catch-all.
-    rescue_from StandardError do |exception|
-      logger.error exception.message
-      render_error 500, "Unknown error occurred: #{exception.message}"
-    end
-
-    # Catch all manually thrown HTTP errors (predefined by repia)
-    rescue_from Errors::HTTPError do |exception|
-      status_code = exception.class.const_get("STATUS_CODE")
-      message = exception.message || exception.class::MESSAGE
-      logger.error "#{status_code} - #{message}"
-      render_error status_code, message
-    end
-
-  end
-
 end
