@@ -1,6 +1,6 @@
 require 'json'
 require 'repia/errors'
-require 'repia/helpers'
+require 'repia/base_helper'
 
 module Repia
 

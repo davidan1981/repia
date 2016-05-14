@@ -1,10 +1,6 @@
 require 'test_helper'
 
-class UniqueModel < ActiveRecord::Base
-  include Repia::UUIDModel
-end
-
-class TestsController < Repia::BaseController
+class TestsController < ApplicationController
   def index
   end
   def show
@@ -79,6 +75,7 @@ class TestsControllerTest < ActionController::TestCase
     class ::TestsController
       def show
         find_object UniqueModel, params[:id]
+        render json: {}, status: 200
       end
     end
     get :show, id: obj.uuid
@@ -92,7 +89,7 @@ class TestsControllerTest < ActionController::TestCase
         exceptions_app
       end
     end
-    delete :show, id: "blah"
+    get :show, id: "blah"
     assert_response 404
   end
 end
