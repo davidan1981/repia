@@ -1,10 +1,6 @@
 require 'test_helper'
 
 class TestsController < ApplicationController
-  def index
-  end
-  def show
-  end
 end
 
 class TestsControllerTest < ActionController::TestCase
