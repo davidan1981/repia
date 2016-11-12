@@ -19,7 +19,7 @@ module Repia
     # }
     #
     def exceptions_app
-      ex_wrapper = ActionDispatch::ExceptionWrapper.new(env, @exception)
+      ex_wrapper = ActionDispatch::ExceptionWrapper.new(Rails.env, @exception)
       status = ex_wrapper.status_code.to_i
       error = Errors::STATUS_CODE_TO_ERROR[status]
       if error

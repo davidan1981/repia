@@ -21,7 +21,7 @@ class TestsControllerTest < ActionController::TestCase
       end
     end
     [400, 401, 404, 409, 500].each do |status_code|
-      get :show, id: status_code
+      get :show, params: { id: status_code }
       assert_response status_code
     end
   end
@@ -61,7 +61,7 @@ class TestsControllerTest < ActionController::TestCase
         find_object UniqueModel, params[:id]
       end
     end
-    get :show, id: "blah"
+    get :show, params: { id: "blah" }
     assert_response 404
   end
 
@@ -74,7 +74,7 @@ class TestsControllerTest < ActionController::TestCase
         render json: {}, status: 200
       end
     end
-    get :show, id: obj.uuid
+    get :show, params: { id: obj.uuid }
     assert_response 200
   end
 
@@ -85,7 +85,7 @@ class TestsControllerTest < ActionController::TestCase
         exceptions_app
       end
     end
-    get :show, id: "blah"
+    get :show, params: { id: "blah" }
     assert_response 404
   end
 end
