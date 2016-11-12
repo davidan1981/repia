@@ -16,6 +16,7 @@ class TestsControllerTest < ActionController::TestCase
 
   test "Predefined errors should be handled" do
     class ::TestsController
+      undef :show if method_defined? :show
       def show
         raise Repia::Errors::STATUS_CODE_TO_ERROR[params[:id].to_i]
       end
@@ -37,6 +38,7 @@ class TestsControllerTest < ActionController::TestCase
 
   test "render multiple errors" do
     class ::TestsController
+      undef :index if method_defined? :index
       def index
         self.render_errors(400, ["foo", "bar"])
       end
@@ -47,6 +49,7 @@ class TestsControllerTest < ActionController::TestCase
 
   test "handle standard error" do
     class ::TestsController
+      undef :index if method_defined? :index
       def index
         raise StandardError
       end
@@ -57,6 +60,7 @@ class TestsControllerTest < ActionController::TestCase
 
   test "find_object will error if object does not exist" do
     class ::TestsController
+      undef :show if method_defined? :show
       def show
         find_object UniqueModel, params[:id]
       end
@@ -69,6 +73,7 @@ class TestsControllerTest < ActionController::TestCase
     obj = UniqueModel.new()
     obj.save()
     class ::TestsController
+      undef :show if method_defined? :show
       def show
         find_object UniqueModel, params[:id]
         render json: {}, status: 200
@@ -80,6 +85,7 @@ class TestsControllerTest < ActionController::TestCase
 
   test "exceptions_app" do
     class ::TestsController
+      undef :show if method_defined? :show
       def show
         @exception = ActionController::RoutingError.new("blah")
         exceptions_app
