@@ -1,8 +1,8 @@
-require 'repia/errors'
-require 'repia/middlewares'
-require 'repia/uuid_model'
-require 'repia/base_helper'
-require 'repia/base_controller'
+require_relative 'repia/errors'
+require_relative 'repia/middlewares'
+require_relative 'repia/support'
+require_relative 'repia/helper'
+require_relative 'repia/controller'
 
 module Repia
 end
