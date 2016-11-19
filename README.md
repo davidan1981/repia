@@ -16,7 +16,7 @@ Add `gem 'repia'` to your project `Gemfile`.
 
 Edit `application_controller.rb` as the following:
 
-    class ApplicationController < Repia::BaseController
+    class ApplicationController < Repia::Controller::Base
     end
 
 This will allow all controllers in the project to inherit from
@@ -26,13 +26,13 @@ pre-defined HTTP errors.
 Next, update all models that need UUID as a primary identifier:
 
     class Something < ActiveRecord::Base
-      include Repia::UUIDModel
+      include Repia::Support::UUIDModel
     end
 
 This will trigger UUID generation before a record object is created. Note
 that migration must look similar to this:
 
-    class CreateSomethings < ActiveRecord::Migration
+    class CreateSomethings < ActiveRecord::Migration[5.0]
       def change
         create_table :somethings, id: false do |t|
           t.string :uuid, primary_key: true, null: false
@@ -59,7 +59,7 @@ template, it will return a simple JSON response with a status of 405.
 
 ### Routing Error
 
-Routing errors can be caught using `BaseController#exceptions_app`. To
+Routing errors can be caught using `Repia::Controller::Base#exceptions_app`. To
 configure it, add this to `config/application.rb`:
 
     config.exceptions_app = lambda {|env| ApplicationController.action(:exceptions_app).call(env)}
