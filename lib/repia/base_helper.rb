@@ -8,7 +8,6 @@ module Repia
   #
   module BaseHelper
 
-    undef :exceptions_app if method_defined? :exceptions_app
     ##
     # Use this as an action triggered by exceptions_app to return a JSON
     # response to any middleware level exceptions.
@@ -34,7 +33,6 @@ module Repia
       render_error status, message
     end
 
-    undef :options if method_defined? :options
     ##
     # Renders a generic OPTIONS response. The actual controller must
     # override this action if desired to have specific OPTIONS handling
@@ -49,7 +47,6 @@ module Repia
       render body: "", status: 200
     end
 
-    undef :render_error if method_defined? :render_error
     ##
     # Renders a single error.
     #
@@ -57,7 +54,6 @@ module Repia
       render json: {errors: [msg]}, status: status
     end
 
-    undef :render_errors if method_defined? :render_errors
     ##
     # Renders multiple errors
     #
@@ -65,7 +61,7 @@ module Repia
       render json: {errors: msgs}, status: status
     end
 
-    undef :find_object if method_defined? :find_object
+    # undef :find_object if method_defined? :find_object
     ##
     # Finds an object by model and UUID and throws an error (which will be
     # caught and re-thrown as an HTTP error) if the object does not exist.
