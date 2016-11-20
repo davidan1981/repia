@@ -1,4 +1,4 @@
 class UniqueModel < ActiveRecord::Base
-  include Repia::UUIDModel
+  include Repia::Support::UUIDModel
 end
 
